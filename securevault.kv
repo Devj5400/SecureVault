@@ -1,0 +1,915 @@
+#:kivy 2.3.0
+#
+# securevault.kv
+# ----------------
+# Central stylesheet for SecureVault. Auto-loaded by Kivy because it
+# matches the App class name (SecureVaultApp -> securevault.kv).
+#
+# Palette (per spec):
+#   Background  #0D1117  -> 0.051, 0.067, 0.090
+#   Cards       #161B22  -> 0.086, 0.106, 0.133
+#   Primary     #58A6FF  -> 0.345, 0.651, 1.000
+#   Success     #238636  -> 0.137, 0.525, 0.212
+#   Danger      #F85149  -> 0.973, 0.318, 0.286
+#   Text        #E6EDF3  -> 0.902, 0.929, 0.953
+#   Muted text  #8B949E  -> 0.545, 0.580, 0.620
+#   Border      #30363D  -> 0.188, 0.212, 0.239
+
+# ---------------------------------------------------------------------
+# Reusable components
+# ---------------------------------------------------------------------
+<RoundedButton>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    background_down: ''
+    color: 1, 1, 1, 1
+    font_size: '15sp'
+    bold: True
+    canvas.before:
+        Color:
+            rgba: self.bg_color if self.state == 'normal' else (self.bg_color[0]*0.8, self.bg_color[1]*0.8, self.bg_color[2]*0.8, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [14, 14, 14, 14]
+
+<OutlineButton>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    background_down: ''
+    color: 0.902, 0.929, 0.953, 1
+    font_size: '14sp'
+    canvas.before:
+        Color:
+            rgba: (0.129, 0.153, 0.188, 1) if self.state == 'down' else (0.086, 0.106, 0.133, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [14, 14, 14, 14]
+        Color:
+            rgba: 0.188, 0.212, 0.239, 1
+        Line:
+            rounded_rectangle: [self.x, self.y, self.width, self.height, 14]
+            width: 1.1
+
+<Card>:
+    orientation: 'vertical'
+    padding: dp(18)
+    spacing: dp(10)
+    size_hint_y: None
+    canvas.before:
+        Color:
+            rgba: 0.086, 0.106, 0.133, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [16, 16, 16, 16]
+
+<StatCard>:
+    orientation: 'vertical'
+    padding: dp(14)
+    spacing: dp(2)
+    canvas.before:
+        Color:
+            rgba: 0.086, 0.106, 0.133, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [16, 16, 16, 16]
+    Label:
+        text: root.value
+        font_size: '28sp'
+        bold: True
+        color: root.accent
+        size_hint_y: None
+        height: dp(38)
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+    Label:
+        text: root.caption
+        font_size: '12sp'
+        color: 0.545, 0.580, 0.620, 1
+        size_hint_y: None
+        height: dp(18)
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+
+<CategoryChip>:
+    size_hint: None, None
+    size: dp(112), dp(38)
+    canvas.before:
+        Color:
+            rgba: (0.345, 0.651, 1, 1) if root.selected else (0.086, 0.106, 0.133, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [19, 19, 19, 19]
+        Color:
+            rgba: (0, 0, 0, 0) if root.selected else (0.188, 0.212, 0.239, 1)
+        Line:
+            rounded_rectangle: [self.x, self.y, self.width, self.height, 19]
+            width: 1.0
+    Label:
+        text: root.text
+        color: (1, 1, 1, 1) if root.selected else (0.902, 0.929, 0.953, 1)
+        bold: root.selected
+        font_size: '13sp'
+
+<StrengthBar>:
+    orientation: 'vertical'
+    spacing: dp(5)
+    size_hint_y: None
+    height: dp(34)
+    padding: [0, dp(4), 0, 0]
+    BoxLayout:
+        size_hint_y: None
+        height: dp(6)
+        spacing: dp(4)
+        Widget:
+            canvas:
+                Color:
+                    rgba: root.bar_color if root.score >= 1 else (0.188, 0.212, 0.239, 1)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [3, 3, 3, 3]
+        Widget:
+            canvas:
+                Color:
+                    rgba: root.bar_color if root.score >= 2 else (0.188, 0.212, 0.239, 1)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [3, 3, 3, 3]
+        Widget:
+            canvas:
+                Color:
+                    rgba: root.bar_color if root.score >= 3 else (0.188, 0.212, 0.239, 1)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [3, 3, 3, 3]
+        Widget:
+            canvas:
+                Color:
+                    rgba: root.bar_color if root.score >= 4 else (0.188, 0.212, 0.239, 1)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [3, 3, 3, 3]
+    Label:
+        text: root.label_text
+        font_size: '11sp'
+        color: root.bar_color
+        size_hint_y: None
+        height: dp(16)
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+
+<PasswordCard>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: dp(116)
+    padding: dp(14)
+    spacing: dp(6)
+    canvas.before:
+        Color:
+            rgba: 0.086, 0.106, 0.133, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [14, 14, 14, 14]
+    BoxLayout:
+        size_hint_y: None
+        height: dp(22)
+        Label:
+            text: root.name
+            bold: True
+            font_size: '15sp'
+            color: 0.902, 0.929, 0.953, 1
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+        Label:
+            text: root.category
+            font_size: '11sp'
+            color: 0.345, 0.651, 1, 1
+            size_hint_x: None
+            width: dp(100)
+            halign: 'right'
+            valign: 'middle'
+            text_size: self.size
+    Label:
+        text: root.username if root.username else ' '
+        font_size: '12sp'
+        color: 0.545, 0.580, 0.620, 1
+        size_hint_y: None
+        height: dp(16)
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+    BoxLayout:
+        spacing: dp(6)
+        size_hint_y: None
+        height: dp(40)
+        Label:
+            text: root.password_display
+            font_size: '13sp'
+            color: 0.902, 0.929, 0.953, 1
+            halign: 'left'
+            valign: 'middle'
+            padding: [dp(10), 0]
+            text_size: self.size
+            canvas.before:
+                Color:
+                    rgba: 0.051, 0.067, 0.090, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [8, 8, 8, 8]
+        OutlineButton:
+            id: reveal_btn
+            text: 'Hide' if root.revealed else 'Show'
+            size_hint_x: None
+            width: dp(62)
+            font_size: '11sp'
+        OutlineButton:
+            id: copy_btn
+            text: 'Copy'
+            size_hint_x: None
+            width: dp(58)
+            font_size: '11sp'
+        RoundedButton:
+            id: delete_btn
+            text: 'Del'
+            size_hint_x: None
+            width: dp(52)
+            font_size: '11sp'
+            bg_color: 0.973, 0.318, 0.286, 1
+
+# ---------------------------------------------------------------------
+# Splash Screen
+# ---------------------------------------------------------------------
+<SplashScreen>:
+    name: 'splash'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    FloatLayout:
+        Label:
+            id: logo_label
+            text: '[b]\U0001F510[/b]'
+            markup: True
+            font_size: '64sp'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.58}
+            opacity: 0
+        Label:
+            id: title_label
+            text: '[b]SecureVault[/b]'
+            markup: True
+            font_size: '26sp'
+            color: 0.902, 0.929, 0.953, 1
+            pos_hint: {'center_x': 0.5, 'center_y': 0.46}
+            opacity: 0
+        Label:
+            text: 'Encrypted password manager'
+            font_size: '13sp'
+            color: 0.545, 0.580, 0.620, 1
+            pos_hint: {'center_x': 0.5, 'center_y': 0.40}
+
+# ---------------------------------------------------------------------
+# Login Screen (create vault / unlock)
+# ---------------------------------------------------------------------
+<LoginScreen>:
+    name: 'login'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(30)
+        spacing: dp(14)
+        size_hint: None, None
+        size: min(dp(420), root.width - dp(40)), dp(430)
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Label:
+            text: '[b]\U0001F510 SecureVault[/b]'
+            markup: True
+            font_size: '22sp'
+            color: 0.902, 0.929, 0.953, 1
+            size_hint_y: None
+            height: dp(36)
+        Label:
+            id: subtitle_label
+            text: 'Welcome back'
+            font_size: '13sp'
+            color: 0.545, 0.580, 0.620, 1
+            size_hint_y: None
+            height: dp(22)
+        Card:
+            height: dp(240)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(46)
+                spacing: dp(6)
+                TextInput:
+                    id: password_input
+                    hint_text: 'Master password'
+                    password: True
+                    multiline: False
+                    background_color: 0.051, 0.067, 0.090, 1
+                    foreground_color: 0.902, 0.929, 0.953, 1
+                    hint_text_color: 0.545, 0.580, 0.620, 1
+                    cursor_color: 0.345, 0.651, 1, 1
+                    padding: [dp(12), dp(12), dp(12), dp(12)]
+                OutlineButton:
+                    id: toggle_pw_btn
+                    text: 'Show'
+                    size_hint_x: None
+                    width: dp(58)
+                    font_size: '11sp'
+            TextInput:
+                id: confirm_input
+                hint_text: 'Confirm password'
+                password: True
+                multiline: False
+                size_hint_y: None
+                height: dp(46)
+                background_color: 0.051, 0.067, 0.090, 1
+                foreground_color: 0.902, 0.929, 0.953, 1
+                hint_text_color: 0.545, 0.580, 0.620, 1
+                cursor_color: 0.345, 0.651, 1, 1
+                padding: [dp(12), dp(12), dp(12), dp(12)]
+            BoxLayout:
+                size_hint_y: None
+                height: dp(30)
+                spacing: dp(6)
+                CheckBox:
+                    id: remember_check
+                    size_hint_x: None
+                    width: dp(30)
+                Label:
+                    text: 'Remember me this session'
+                    font_size: '12sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+            Label:
+                id: error_label
+                text: ''
+                color: 0.973, 0.318, 0.286, 1
+                font_size: '12sp'
+                size_hint_y: None
+                height: dp(20)
+        RoundedButton:
+            id: submit_btn
+            text: 'Unlock'
+            size_hint_y: None
+            height: dp(50)
+
+# ---------------------------------------------------------------------
+# Dashboard Screen
+# ---------------------------------------------------------------------
+<DashboardScreen>:
+    name: 'dashboard'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(14)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            Label:
+                text: '[b]Dashboard[/b]'
+                markup: True
+                font_size: '20sp'
+                color: 0.902, 0.929, 0.953, 1
+                halign: 'left'
+                valign: 'middle'
+                text_size: self.size
+            OutlineButton:
+                id: settings_btn
+                text: 'Settings'
+                size_hint_x: None
+                width: dp(96)
+        GridLayout:
+            id: stats_grid
+            cols: 2
+            size_hint_y: None
+            height: dp(170)
+            spacing: dp(10)
+        Card:
+            id: recent_card
+            size_hint_y: 1
+            Label:
+                text: 'Recently Added'
+                bold: True
+                color: 0.902, 0.929, 0.953, 1
+                size_hint_y: None
+                height: dp(24)
+                halign: 'left'
+                valign: 'middle'
+                text_size: self.size
+            ScrollView:
+                BoxLayout:
+                    id: recent_list
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(8)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(54)
+            spacing: dp(10)
+            RoundedButton:
+                id: create_btn
+                text: '+ Create Password'
+            OutlineButton:
+                id: vault_btn
+                text: 'View Vault'
+
+# ---------------------------------------------------------------------
+# Create Password Screen
+# ---------------------------------------------------------------------
+<CreatePasswordScreen>:
+    name: 'create'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(20)
+            spacing: dp(14)
+            size_hint_y: None
+            height: self.minimum_height
+            BoxLayout:
+                size_hint_y: None
+                height: dp(40)
+                OutlineButton:
+                    id: back_btn
+                    text: '< Back'
+                    size_hint_x: None
+                    width: dp(90)
+                Label:
+                    text: '[b]Create Password[/b]'
+                    markup: True
+                    font_size: '17sp'
+                    color: 0.902, 0.929, 0.953, 1
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+            Card:
+                height: dp(78)
+                Label:
+                    text: 'Category'
+                    font_size: '12sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    text_size: self.size
+                BoxLayout:
+                    id: category_row
+                    spacing: dp(8)
+            Card:
+                height: dp(196)
+                TextInput:
+                    id: name_input
+                    hint_text: 'Name (e.g. Instagram, Gmail, amazon.com)'
+                    multiline: False
+                    size_hint_y: None
+                    height: dp(46)
+                    background_color: 0.051, 0.067, 0.090, 1
+                    foreground_color: 0.902, 0.929, 0.953, 1
+                    hint_text_color: 0.545, 0.580, 0.620, 1
+                    cursor_color: 0.345, 0.651, 1, 1
+                    padding: [dp(12), dp(12), dp(12), dp(12)]
+                TextInput:
+                    id: username_input
+                    hint_text: 'Username / email (optional)'
+                    multiline: False
+                    size_hint_y: None
+                    height: dp(46)
+                    background_color: 0.051, 0.067, 0.090, 1
+                    foreground_color: 0.902, 0.929, 0.953, 1
+                    hint_text_color: 0.545, 0.580, 0.620, 1
+                    cursor_color: 0.345, 0.651, 1, 1
+                    padding: [dp(12), dp(12), dp(12), dp(12)]
+                Label:
+                    id: error_label
+                    text: ''
+                    color: 0.973, 0.318, 0.286, 1
+                    font_size: '12sp'
+                    size_hint_y: None
+                    height: dp(20)
+            Card:
+                height: dp(515)
+                spacing: dp(12)
+                Label:
+                    text: 'Password Options'
+                    font_size: '12sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                GridLayout:
+                    cols: 2
+                    size_hint_y: None
+                    height: dp(76)
+                    spacing: dp(4)
+                    BoxLayout:
+                        CheckBox:
+                            id: chk_upper
+                            active: True
+                            size_hint_x: None
+                            width: dp(30)
+                        Label:
+                            text: 'Uppercase (A-Z)'
+                            font_size: '12sp'
+                            color: 0.902, 0.929, 0.953, 1
+                            halign: 'left'
+                            valign: 'middle'
+                            text_size: self.size
+                    BoxLayout:
+                        CheckBox:
+                            id: chk_digits
+                            active: True
+                            size_hint_x: None
+                            width: dp(30)
+                        Label:
+                            text: 'Numbers (0-9)'
+                            font_size: '12sp'
+                            color: 0.902, 0.929, 0.953, 1
+                            halign: 'left'
+                            valign: 'middle'
+                            text_size: self.size
+                    BoxLayout:
+                        CheckBox:
+                            id: chk_lower
+                            active: True
+                            size_hint_x: None
+                            width: dp(30)
+                        Label:
+                            text: 'Lowercase (a-z)'
+                            font_size: '12sp'
+                            color: 0.902, 0.929, 0.953, 1
+                            halign: 'left'
+                            valign: 'middle'
+                            text_size: self.size
+                    BoxLayout:
+                        CheckBox:
+                            id: chk_symbols
+                            active: True
+                            size_hint_x: None
+                            width: dp(30)
+                        Label:
+                            text: 'Symbols (!@#..)'
+                            font_size: '12sp'
+                            color: 0.902, 0.929, 0.953, 1
+                            halign: 'left'
+                            valign: 'middle'
+                            text_size: self.size
+
+                # --- Length control: label + slider + -/value/+ cluster,
+                # kept in sync from the Python side (create_password.py) ---
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(20)
+                    Label:
+                        text: 'Length'
+                        font_size: '12sp'
+                        color: 0.545, 0.580, 0.620, 1
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+                    Label:
+                        text: '4 - 128 characters'
+                        font_size: '11sp'
+                        color: 0.545, 0.580, 0.620, 1
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(44)
+                    spacing: dp(8)
+                    OutlineButton:
+                        id: length_minus_btn
+                        text: '-'
+                        bold: True
+                        size_hint_x: None
+                        width: dp(38)
+                    TextInput:
+                        id: length_input
+                        text: '16'
+                        multiline: False
+                        input_filter: 'int'
+                        halign: 'center'
+                        font_size: '15sp'
+                        bold: True
+                        size_hint_x: None
+                        width: dp(64)
+                        background_color: 0.051, 0.067, 0.090, 1
+                        foreground_color: 0.345, 0.651, 1, 1
+                        cursor_color: 0.345, 0.651, 1, 1
+                        padding: [0, dp(12), 0, 0]
+                    OutlineButton:
+                        id: length_plus_btn
+                        text: '+'
+                        bold: True
+                        size_hint_x: None
+                        width: dp(38)
+                    Slider:
+                        id: length_slider
+                        min: 4
+                        max: 128
+                        value: 16
+                        step: 1
+
+                # --- Generated password: readable multi-line field so long
+                # (up to 128-char) passwords wrap instead of being cut off ---
+                Label:
+                    text: 'Generated password'
+                    font_size: '12sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                ScrollView:
+                    id: pw_scroll
+                    size_hint_y: None
+                    height: dp(90)
+                    do_scroll_x: False
+                    bar_width: dp(4)
+                    canvas.before:
+                        Color:
+                            rgba: 0.051, 0.067, 0.090, 1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [10, 10, 10, 10]
+                    Label:
+                        id: pw_display
+                        text: ''
+                        bold: True
+                        font_size: '17sp'
+                        color: 0.902, 0.929, 0.953, 1
+                        halign: 'left'
+                        valign: 'top'
+                        size_hint_y: None
+                        padding: [dp(12), dp(12)]
+                        text_size: self.width - dp(24), None
+                        height: max(dp(90), self.texture_size[1] + dp(24))
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(44)
+                    spacing: dp(10)
+                    OutlineButton:
+                        id: copy_btn
+                        text: 'Copy'
+                    RoundedButton:
+                        id: regen_btn
+                        text: '\U0001F504 Regenerate'
+                        bg_color: 0.345, 0.651, 1, 1
+                StrengthBar:
+                    id: strength_bar
+                Label:
+                    id: entropy_label
+                    text: ''
+                    font_size: '11sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+            BoxLayout:
+                size_hint_y: None
+                height: dp(52)
+                spacing: dp(10)
+                RoundedButton:
+                    id: save_btn
+                    text: 'Save Password'
+                    bg_color: 0.137, 0.525, 0.212, 1
+                OutlineButton:
+                    id: cancel_btn
+                    text: 'Cancel'
+
+# ---------------------------------------------------------------------
+# Vault Screen (search / filter / list)
+# ---------------------------------------------------------------------
+<VaultScreen>:
+    name: 'vault'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(12)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            OutlineButton:
+                id: back_btn
+                text: '< Back'
+                size_hint_x: None
+                width: dp(90)
+            Label:
+                text: '[b]Vault[/b]'
+                markup: True
+                font_size: '18sp'
+                color: 0.902, 0.929, 0.953, 1
+        TextInput:
+            id: search_input
+            hint_text: 'Search passwords...'
+            multiline: False
+            size_hint_y: None
+            height: dp(46)
+            background_color: 0.086, 0.106, 0.133, 1
+            foreground_color: 0.902, 0.929, 0.953, 1
+            hint_text_color: 0.545, 0.580, 0.620, 1
+            cursor_color: 0.345, 0.651, 1, 1
+            padding: [dp(12), dp(12), dp(12), dp(12)]
+        BoxLayout:
+            id: filter_row
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(8)
+        ScrollView:
+            BoxLayout:
+                id: entry_list
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(10)
+
+# ---------------------------------------------------------------------
+# Settings Screen
+# ---------------------------------------------------------------------
+<SettingsScreen>:
+    name: 'settings'
+    canvas.before:
+        Color:
+            rgba: 0.051, 0.067, 0.090, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(20)
+            spacing: dp(14)
+            size_hint_y: None
+            height: self.minimum_height
+            BoxLayout:
+                size_hint_y: None
+                height: dp(40)
+                OutlineButton:
+                    id: back_btn
+                    text: '< Back'
+                    size_hint_x: None
+                    width: dp(90)
+                Label:
+                    text: '[b]Settings[/b]'
+                    markup: True
+                    font_size: '18sp'
+                    color: 0.902, 0.929, 0.953, 1
+            Card:
+                height: dp(200)
+                Label:
+                    text: 'Change Master Password'
+                    bold: True
+                    color: 0.902, 0.929, 0.953, 1
+                    size_hint_y: None
+                    height: dp(22)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                TextInput:
+                    id: current_pw_input
+                    hint_text: 'Current master password'
+                    password: True
+                    multiline: False
+                    size_hint_y: None
+                    height: dp(44)
+                    background_color: 0.051, 0.067, 0.090, 1
+                    foreground_color: 0.902, 0.929, 0.953, 1
+                    hint_text_color: 0.545, 0.580, 0.620, 1
+                    padding: [dp(12), dp(12), dp(12), dp(12)]
+                TextInput:
+                    id: new_pw_input
+                    hint_text: 'New master password'
+                    password: True
+                    multiline: False
+                    size_hint_y: None
+                    height: dp(44)
+                    background_color: 0.051, 0.067, 0.090, 1
+                    foreground_color: 0.902, 0.929, 0.953, 1
+                    hint_text_color: 0.545, 0.580, 0.620, 1
+                    padding: [dp(12), dp(12), dp(12), dp(12)]
+                RoundedButton:
+                    id: change_pw_btn
+                    text: 'Update Password'
+                    size_hint_y: None
+                    height: dp(44)
+            Card:
+                height: dp(150)
+                Label:
+                    text: 'Auto-Lock Timeout'
+                    bold: True
+                    color: 0.902, 0.929, 0.953, 1
+                    size_hint_y: None
+                    height: dp(22)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                Spinner:
+                    id: autolock_spinner
+                    text: '5 minutes'
+                    values: ['1 minute', '5 minutes', '15 minutes', 'Never']
+                    size_hint_y: None
+                    height: dp(44)
+                    background_color: 0.086, 0.106, 0.133, 1
+                    color: 0.902, 0.929, 0.953, 1
+                Label:
+                    id: autolock_note
+                    text: ''
+                    font_size: '11sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+            Card:
+                height: dp(170)
+                Label:
+                    text: 'Backup'
+                    bold: True
+                    color: 0.902, 0.929, 0.953, 1
+                    size_hint_y: None
+                    height: dp(22)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                RoundedButton:
+                    id: export_btn
+                    text: 'Export Encrypted Vault'
+                    size_hint_y: None
+                    height: dp(44)
+                OutlineButton:
+                    id: import_btn
+                    text: 'Import Encrypted Vault'
+                    size_hint_y: None
+                    height: dp(44)
+                Label:
+                    id: settings_status
+                    text: ''
+                    font_size: '11sp'
+                    color: 0.247, 0.725, 0.314, 1
+                    size_hint_y: None
+                    height: dp(18)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+            Card:
+                height: dp(120)
+                Label:
+                    text: '[b]SecureVault[/b] v2.0'
+                    markup: True
+                    color: 0.902, 0.929, 0.953, 1
+                    size_hint_y: None
+                    height: dp(26)
+                Label:
+                    text: 'A local, encrypted password manager.\nAES-256-GCM + PBKDF2-HMAC-SHA256.'
+                    font_size: '11sp'
+                    color: 0.545, 0.580, 0.620, 1
+                    halign: 'center'
